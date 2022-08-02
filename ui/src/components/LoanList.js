@@ -8,12 +8,25 @@ class LoanList extends React.Component {
         this.state = { loanInfo: [{ loanNumber: 1, principal: '', interest: '', interestRate: '', term: '', monthlyPayment: '' }] }
         this.handleAddLoan = this.handleAddLoan.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this)
+        this.handleRemoveLoan = this.handleRemoveLoan.bind(this)
     }
 
     handleAddLoan(event) {
         event.currentTarget.blur()
         const loans = this.state.loanInfo.slice()
         this.setState({ loanInfo: loans.concat({ loanNumber: loans.length + 1, principal: '', interest: '', interestRate: '', term: '', monthlyPayment: '' }) })
+    }
+
+    handleRemoveLoan(loanNumber) {
+        let loans = this.state.loanInfo.slice()
+
+        loans = loans.filter(loan => loan.loanNumber !== loanNumber)
+
+        for (let i = 1; i <= loans.length; i++) {
+            loans[i - 1].loanNumber = i;
+        }
+
+        this.setState({ loanInfo: loans })
     }
 
     handleInputChange(event, loanNumber) {
@@ -36,8 +49,13 @@ class LoanList extends React.Component {
     }
 
     render() {
-        const loans = this.state.loanInfo.map((element, idx) =>
-            <ListGroup.Item style={{ paddingLeft: '0px', paddingRight: '0px' }} key={idx}><Loan handleInputChange={this.handleInputChange} loanNumber={element.loanNumber} monthlyPayment={element.monthlyPayment}></Loan></ListGroup.Item>
+        const loans = this.state.loanInfo.map((element) =>
+            <ListGroup.Item style={{ paddingLeft: '0px', paddingRight: '0px' }} key={element.loanNumber}>
+                <Loan
+                    handleInputChange={this.handleInputChange}
+                    handleRemoveLoan={this.handleRemoveLoan}
+                    loanNumber={element.loanNumber}
+                    monthlyPayment={element.monthlyPayment}></Loan></ListGroup.Item>
         )
         return (
             <div>

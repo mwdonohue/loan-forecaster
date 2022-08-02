@@ -1,11 +1,17 @@
 import React from 'react'
-import { Card, Container, Row, Col, Form, InputGroup } from 'react-bootstrap'
+import { Card, Container, Row, Col, Form, InputGroup, Button } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
 
 class Loan extends React.Component {
     render() {
         return (
             <Card>
-                <Card.Header>Loan {this.props.loanNumber}</Card.Header>
+                <Card.Header>Loan {this.props.loanNumber}
+                    <Button onClick={() => this.props.handleRemoveLoan(this.props.loanNumber)} variant="link" style={{ position: 'absolute', right: '20px', top: '1px' }}>
+                        <FontAwesomeIcon style={{ color: 'red' }} icon={faTrash} size="lg"></FontAwesomeIcon>
+                    </Button>
+                </Card.Header>
                 <Card.Body>
                     <Container>
                         <Row>
@@ -43,7 +49,7 @@ class Loan extends React.Component {
                                 <Form.Label htmlFor="monthlypayment">Monthly Payment</Form.Label>
                                 <InputGroup>
                                     <InputGroup.Text>$</InputGroup.Text>
-                                    <Form.Control id="monthlypayment" readOnly placeholder={this.props.monthlyPayment} />
+                                    <Form.Control id="monthlypayment" disabled defaultValue={this.props.monthlyPayment} />
                                 </InputGroup>
                             </Col>
                         </Row>
