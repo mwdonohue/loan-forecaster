@@ -5,7 +5,10 @@ import Loan from './Loan'
 class LoanList extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { loanInfo: [{ loanNumber: 1, principal: '', interest: '', interestRate: '', term: '', monthlyPayment: '' }] }
+        this.idCounter = 1
+        // Maybe change this to map of maps in the future?
+        this.state = { loanInfo: [{ id: this.idCounter, loanName: 1, principal: '', interest: '', interestRate: '', term: '', monthlyPayment: '' }] }
+        this.idCounter++;
         this.handleAddLoan = this.handleAddLoan.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this)
         this.handleRemoveLoan = this.handleRemoveLoan.bind(this)
@@ -14,30 +17,33 @@ class LoanList extends React.Component {
     handleAddLoan(event) {
         event.currentTarget.blur()
         const loans = this.state.loanInfo.slice()
-        this.setState({ loanInfo: loans.concat({ loanNumber: loans.length + 1, principal: '', interest: '', interestRate: '', term: '', monthlyPayment: '' }) })
+        this.setState({ loanInfo: loans.concat({ id: this.idCounter, loanName: loans.length + 1, principal: '', interest: '', interestRate: '', term: '', monthlyPayment: '' }) })
+        this.idCounter++
     }
 
-    handleRemoveLoan(loanNumber) {
+    handleRemoveLoan(id) {
         let loans = this.state.loanInfo.slice()
-
-        loans = loans.filter(loan => loan.loanNumber !== loanNumber)
+        loans = loans.filter(loan => loan.id !== id)
 
         for (let i = 1; i <= loans.length; i++) {
-            loans[i - 1].loanNumber = i;
+            loans[i - 1].loanName = i;
         }
-
         this.setState({ loanInfo: loans })
     }
 
-    handleInputChange(event, loanNumber) {
+    handleInputChange(event, id) {
         const target = event.target
         const value = target.value
         const name = target.name;
 
         const loans = this.state.loanInfo.slice()
 
-        loans[loanNumber - 1][name] = value
-        loans[loanNumber - 1]['monthlyPayment'] = this.monthlyPayment(loans[loanNumber - 1]['principal'], loans[loanNumber - 1]['interestRate'], loans[loanNumber - 1]['term'])
+        loans.forEach((loan) => {
+            if (loan.id === id) {
+                loan[name] = value
+                loan['monthlyPayment'] = this.monthlyPayment(loan['principal'], loan['interestRate'], loan['term'])
+            }
+        })
 
         this.setState({ loanInfo: loans })
     }
@@ -50,11 +56,12 @@ class LoanList extends React.Component {
 
     render() {
         const loans = this.state.loanInfo.map((element) =>
-            <ListGroup.Item style={{ paddingLeft: '0px', paddingRight: '0px' }} key={element.loanNumber}>
+            <ListGroup.Item style={{ paddingLeft: '0px', paddingRight: '0px' }} key={element.id}>
                 <Loan
                     handleInputChange={this.handleInputChange}
                     handleRemoveLoan={this.handleRemoveLoan}
-                    loanNumber={element.loanNumber}
+                    id={element.id}
+                    loanName={element.loanName}
                     monthlyPayment={element.monthlyPayment}></Loan></ListGroup.Item>
         )
         return (
