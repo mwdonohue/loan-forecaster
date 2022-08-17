@@ -7,6 +7,7 @@ class LoanList extends React.Component {
         super(props)
         this.idCounter = 1
         // Maybe change this to map of maps in the future?
+        // TODO: [{fieldname: {data: {}, errors: []}]
         this.state = { loanInfo: [{ id: this.idCounter, loanName: 1, principal: '', interest: '', interestRate: '', term: '', monthlyPayment: '' }] }
         this.idCounter++;
         this.handleAddLoan = this.handleAddLoan.bind(this)
@@ -31,6 +32,21 @@ class LoanList extends React.Component {
         this.setState({ loanInfo: loans })
     }
 
+    // Principal:
+    // Must be whole number > 0 | NOT_WHOLE_NUMBER, LESS_THAN_1
+    // Cannot be empty
+
+    // Interest:
+    // Must be whole number > 0 | NOT_WHOLE_NUMBER, LESS_THAN_1
+    // Can be empty
+
+    // Interest Rate:
+    // Must be whole number > 0 | NOT_WHOLE_NUMBER, LESS_THAN_1
+    // Cannot be empty
+
+    // Term:
+    // Must be whole number > 0 | NOT_WHOLE_NUMBER, LESS_THAN_1
+    // Cannot be empty
     handleInputChange(event, id) {
         const target = event.target
         const value = target.value
@@ -38,10 +54,14 @@ class LoanList extends React.Component {
 
         const loans = this.state.loanInfo.slice()
 
-        loans.forEach((loan) => {
+        loans.every((loan) => {
             if (loan.id === id) {
                 loan[name] = value
                 loan['monthlyPayment'] = this.monthlyPayment(loan['principal'], loan['interestRate'], loan['term'])
+                return false;
+            }
+            else {
+                return true;
             }
         })
 
