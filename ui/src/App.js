@@ -10,7 +10,7 @@ class App extends React.Component {
       <Container>
         <Row>
           <Col></Col>
-          <Col lg={10}>
+          <Col lg={11}>
             <LoanList></LoanList>
           </Col>
           <Col></Col>
