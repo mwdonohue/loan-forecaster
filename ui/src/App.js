@@ -4,6 +4,7 @@ import LoanList from './components/LoanList';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col'
+import MonthlyPayment from './components/MonthlyPayment';
 class App extends React.Component {
   render() {
     return (
@@ -11,7 +12,14 @@ class App extends React.Component {
         <Row>
           <Col></Col>
           <Col lg={11}>
-            <LoanList></LoanList>
+            <Row>
+              <Col lg={2}>
+                <MonthlyPayment></MonthlyPayment>
+              </Col>
+            </Row>
+            <Row>
+              <LoanList></LoanList>
+            </Row>
           </Col>
           <Col></Col>
         </Row>
