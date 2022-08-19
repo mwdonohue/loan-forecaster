@@ -3,6 +3,7 @@ import { Card, Container, Row, Col, Form, InputGroup, Button } from 'react-boots
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash } from '@fortawesome/free-solid-svg-icons'
 import { getErrorMessage } from './LoanErrors'
+import './Loan.css'
 class Loan extends React.Component {
     render() {
         return (

@@ -43,6 +43,12 @@ class LoanList extends React.Component {
 
     handleRemoveLoan(id) {
         let loans = this.state.loanInfo.slice()
+        let oldMonthlyPayment = this.props.totalPayment
+        let loanMonthlyPayment = Number(loans.find(loan => loan.id.data === id).monthlyPayment.data)
+
+        if (!Number.isNaN(loanMonthlyPayment)) {
+            this.props.updateTotalPayment(oldMonthlyPayment - loanMonthlyPayment)
+        }
         loans = loans.filter(loan => loan.id.data !== id)
 
         for (let i = 1; i <= loans.length; i++) {
@@ -62,25 +68,32 @@ class LoanList extends React.Component {
             if (loan.id.data === id) {
                 loan[name]['data'] = value
                 loan[name]['visited'] = true
+                let oldMonthlyPayment = this.props.totalPayment
+                if (!Number.isNaN(loan['monthlyPayment']['data'] !== '')) {
+                    oldMonthlyPayment -= Number(loan['monthlyPayment']['data'])
+                }
                 if (this.validateLoan(loan) === true) {
                     loan['monthlyPayment']['data'] = this.monthlyPayment(loan['principal']['data'], loan['interestRate']['data'], loan['term']['data'])
                 } else {
                     loan['monthlyPayment']['data'] = ''
                 }
+                if (!Number.isNaN(loan['monthlyPayment']['data'] !== '')) {
+                    oldMonthlyPayment += Number(loan['monthlyPayment']['data'])
+                }
+                this.props.updateTotalPayment((oldMonthlyPayment).toFixed(0))
                 return false;
             }
             else {
                 return true;
             }
         })
-
         this.setState({ loanInfo: loans })
     }
 
     monthlyPayment(principal, interestRate, term) {
         interestRate /= 12
         interestRate /= 100
-        return (principal * ((interestRate * Math.pow(1 + interestRate, term * 12)) / ((Math.pow(1 + interestRate, term * 12) - 1)))).toFixed(2)
+        return (principal * ((interestRate * Math.pow(1 + interestRate, term * 12)) / ((Math.pow(1 + interestRate, term * 12) - 1)))).toFixed(0)
     }
 
     // If every required field has not been touched, return false
@@ -197,7 +210,7 @@ class LoanList extends React.Component {
 
     render() {
         const loans = this.state.loanInfo.map((element) =>
-            <ListGroup.Item style={{ paddingLeft: '0px', paddingRight: '0px' }} key={element.id.data}>
+            <ListGroup.Item style={{ padding: '12px', border: '0px' }} key={element.id.data}>
                 <Loan
                     handleInputChange={this.handleInputChange}
                     handleRemoveLoan={this.handleRemoveLoan}
@@ -205,8 +218,8 @@ class LoanList extends React.Component {
         )
         return (
             <div>
-                <ListGroup variant="flush">{loans}</ListGroup>
-                <Button className="mt-2" type='submit' variant="outline-primary" onClick={this.handleAddLoan}>Add Loan</Button>
+                <ListGroup style={{ border: '1px solid rgba(0,0,0,0.250)', }}>{loans}</ListGroup>
+                <Button style={{ marginBottom: '8px' }} className="mt-2" type='submit' variant="outline-primary" onClick={this.handleAddLoan}>Add Loan</Button>
             </div>
         )
     }
