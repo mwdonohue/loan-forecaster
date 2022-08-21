@@ -3,7 +3,8 @@ const ERROR_TABLE = {
     "EMPTY": "is required",
     "IS_NAN": "must be a number",
     "OUT_OF_RANGE": "is out of range",
-    "LESS_THAN_1": "must be greater than zero"
+    "LESS_THAN_1": "must be greater than or equal to one",
+    "LESS_THAN_0": "must be greater than zero"
 }
 
 // Returns array of strings containing error messages

@@ -4,7 +4,7 @@ import { Form, InputGroup, Row, Col, Container } from 'react-bootstrap'
 class MonthlyPayment extends React.Component {
     render() {
         return (
-            <Container style={{ paddingTop: '10px', paddingBottom: '10px' }}>
+            <Container style={{}}>
                 <Row >
                     <Col lg={4}>
                         <Form.Label htmlFor="totalMonthlyPayment">Total Monthly Payment</Form.Label>
