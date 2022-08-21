@@ -12,7 +12,7 @@ class LoanList extends React.Component {
         )
         return (
             <div>
-                <ListGroup style={{ border: '1px solid rgba(0,0,0,0.250)', }}>{loans}</ListGroup>
+                <ListGroup style={{ border: '1px solid rgba(0,0,0,0.250)', marginTop: '8px' }}>{loans}</ListGroup>
                 <Button style={{ marginBottom: '8px' }} className="mt-2" type='submit' variant="outline-primary" onClick={this.props.handleAddLoan}>Add Loan</Button>
             </div>
         )

@@ -73,7 +73,7 @@ class TimeSimulation extends React.Component {
 
     render() {
         return (
-            <Container>
+            <Container style={{ textAlign: 'right' }}>
                 <p>Remaining Time: {this.getTimeRemaining()} months</p>
             </Container>
         )

@@ -1,11 +1,13 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import LoanList from './components/LoanList';
-import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col'
 import MonthlyPayment from './components/MonthlyPayment';
 import TimeSimulation from './components/TimeSimulation';
+import { v4 as uuidv4 } from 'uuid';
+import { Form } from 'react-bootstrap';
+import { Container } from 'react-bootstrap'
 class App extends React.Component {
 
   constructor(props) {
@@ -14,25 +16,47 @@ class App extends React.Component {
     this.updateTotalPayment = this.updateTotalPayment.bind(this)
 
     // Loan List state
-    this.idCounter = 1
     // Maybe change this to map of maps in the future?
     this.state = {
       loanInfo: [{
-        id: { data: this.idCounter, errors: new Set(), visited: false },
-        loanName: { data: 1, errors: new Set(), visited: false },
-        principal: { data: '', errors: new Set(), visited: false },
-        interest: { data: '', errors: new Set(), visited: false },
-        interestRate: { data: '', errors: new Set(), visited: false },
-        term: { data: '', errors: new Set(), visited: false },
-        monthlyPayment: { data: '', errors: new Set(), visited: false },
+        id: { data: uuidv4(), errors: [], visited: false },
+        loanName: { data: 1, errors: [], visited: false },
+        principal: { data: '', errors: [], visited: false },
+        interest: { data: '', errors: [], visited: false },
+        interestRate: { data: '', errors: [], visited: false },
+        term: { data: '', errors: [], visited: false },
+        monthlyPayment: { data: '', errors: [], visited: false },
       },
       ],
-      totalPayment: 0
+      totalPayment: 0,
+      browserStorage: false,
     }
-    this.idCounter++;
     this.handleAddLoan = this.handleAddLoan.bind(this)
     this.handleInputChange = this.handleInputChange.bind(this)
     this.handleRemoveLoan = this.handleRemoveLoan.bind(this)
+    this.handleBrowserStorageChange = this.handleBrowserStorageChange.bind(this)
+  }
+
+  componentDidMount() {
+    // Set loan info upon load if switch is set
+    let shouldLoadLoans = JSON.parse(localStorage.getItem('browserStorage'))
+    if (shouldLoadLoans === true) {
+      this.setState({ browserStorage: JSON.parse(localStorage.getItem('browserStorage')) })
+    }
+    if (localStorage.getItem('loanInfo') && shouldLoadLoans) {
+      this.setState({ loanInfo: JSON.parse(localStorage.getItem('loanInfo')) })
+      this.setState({ totalPayment: JSON.parse(localStorage.getItem('totalPayment')) })
+    }
+  }
+
+  componentDidUpdate() {
+    localStorage.setItem('browserStorage', JSON.stringify(this.state.browserStorage))
+    // Save data if toggled
+    if (this.state.browserStorage === true) {
+      localStorage.setItem('loanInfo', JSON.stringify(this.state.loanInfo))
+      localStorage.setItem('totalPayment', JSON.stringify(this.state.totalPayment))
+    }
+
   }
 
 
@@ -41,16 +65,15 @@ class App extends React.Component {
     const loans = this.state.loanInfo.slice()
     this.setState({
       loanInfo: loans.concat({
-        id: { data: this.idCounter, errors: new Set(), visited: false },
-        loanName: { data: loans.length + 1, errors: new Set(), visited: false },
-        principal: { data: '', errors: new Set(), visited: false },
-        interest: { data: '', errors: new Set(), visited: false },
-        interestRate: { data: '', errors: new Set(), visited: false },
-        term: { data: '', errors: new Set(), visited: false },
-        monthlyPayment: { data: '', errors: new Set(), visited: false }
+        id: { data: uuidv4(), errors: [], visited: false },
+        loanName: { data: loans.length + 1, errors: [], visited: false },
+        principal: { data: '', errors: [], visited: false },
+        interest: { data: '', errors: [], visited: false },
+        interestRate: { data: '', errors: [], visited: false },
+        term: { data: '', errors: [], visited: false },
+        monthlyPayment: { data: '', errors: [], visited: false }
       })
     })
-    this.idCounter++
   }
 
   handleRemoveLoan(id) {
@@ -117,7 +140,7 @@ class App extends React.Component {
     // Validate principal
     // If principal has not been visited, there is no reason to check if the data in it is valid
     // Clear the previous errors if there are any
-    loan['principal']['errors'].clear()
+    loan['principal']['errors'] = []
     if (!loan['principal']['visited']) {
       loanValid = false
     } else {
@@ -126,49 +149,49 @@ class App extends React.Component {
       let princNum = Number(loan['principal']['data'])
       if (!loan['principal']['data'] || loan['principal']['data'].trim() === "") {
         loanValid = false
-        loan['principal']['errors'].add('EMPTY')
+        loan['principal']['errors'].push('EMPTY')
       } else if (Number.isNaN(princNum)) {
         loanValid = false
-        loan['principal']['errors'].add('IS_NAN')
+        loan['principal']['errors'].push('IS_NAN')
       } else if (!Number.isInteger(princNum)) {
         loanValid = false
-        loan['principal']['errors'].add("NOT_INTEGER")
+        loan['principal']['errors'].push("NOT_INTEGER")
       } else if (Number.isInteger(princNum) && !Number.isSafeInteger(princNum)) {
         loanValid = false
-        loan['principal']['errors'].add("OUT_OF_RANGE")
+        loan['principal']['errors'].push("OUT_OF_RANGE")
       } else if (princNum < 1) {
         loanValid = false
-        loan['principal']['errors'].add("LESS_THAN_1")
+        loan['principal']['errors'].push("LESS_THAN_1")
       }
     }
 
     // Validate interest
     // Since interest isn't a required field, the loan isn't necessarily invalid if it hasn't been visited, but we do need to check the case when it has been
     // Clear the previous errors if there are any
-    loan['interest']['errors'].clear()
+    loan['interest']['errors'] = []
     // Not Required: Skip validation if empty
     if (loan['interest']['visited'] && (loan['interest']['data'] || loan['interest']['data'].trim() !== "")) {
       // Must be whole number > 0 | NOT_INTEGER, LESS_THAN_1, IS_NAN, OUT_OF_RANGE
       let interestNum = Number(loan['interest']['data'])
       if (Number.isNaN(interestNum)) {
         loanValid = false
-        loan['interest']['errors'].add('IS_NAN')
+        loan['interest']['errors'].push('IS_NAN')
       } else if (!Number.isInteger(interestNum)) {
         loanValid = false
-        loan['interest']['errors'].add("NOT_INTEGER")
+        loan['interest']['errors'].push("NOT_INTEGER")
       } else if (Number.isInteger(interestNum) && !Number.isSafeInteger(interestNum)) {
         loanValid = false
-        loan['interest']['errors'].add("OUT_OF_RANGE")
+        loan['interest']['errors'].push("OUT_OF_RANGE")
       } else if (interestNum <= 0) {
         loanValid = false
-        loan['interest']['errors'].add("LESS_THAN_0")
+        loan['interest']['errors'].push("LESS_THAN_0")
       }
     }
 
     // Validate interestRate
     //  If interestRate has not been visited, we do not validate, but the loan is not valid
     // Clear the previous errors if there are any
-    loan['interestRate']['errors'].clear()
+    loan['interestRate']['errors'] = []
     if (!loan['interestRate']['visited']) {
       loanValid = false
     } else {
@@ -177,23 +200,23 @@ class App extends React.Component {
       let interestRateNum = Number(loan['interestRate']['data'])
       if (!loan['interestRate']['data'] || loan['interestRate']['data'].trim() === "") {
         loanValid = false
-        loan['interestRate']['errors'].add('EMPTY')
+        loan['interestRate']['errors'].push('EMPTY')
       } else if (Number.isNaN(interestRateNum)) {
         loanValid = false
-        loan['interestRate']['errors'].add('IS_NAN')
+        loan['interestRate']['errors'].push('IS_NAN')
       } else if (!Number.isFinite(interestRateNum)) {
         loanValid = false
-        loan['interestRate']['errors'].add("NOT_DECIMAL")
+        loan['interestRate']['errors'].push("NOT_DECIMAL")
       } else if (interestRateNum <= 0) {
         loanValid = false
-        loan['interestRate']['errors'].add("LESS_THAN_0")
+        loan['interestRate']['errors'].push("LESS_THAN_0")
       }
     }
 
     // Validate term
     // If term has not been visited, we do not validate, but the loan is not valid
     // Clear the previous errors if there are any
-    loan['term']['errors'].clear()
+    loan['term']['errors'] = []
     if (!loan['term']['visited']) {
       loanValid = false
     } else {
@@ -202,19 +225,19 @@ class App extends React.Component {
       let termNum = Number(loan['term']['data'])
       if (!loan['term']['data'] || loan['term']['data'].trim() === "") {
         loanValid = false
-        loan['term']['errors'].add('EMPTY')
+        loan['term']['errors'].push('EMPTY')
       } else if (Number.isNaN(termNum)) {
         loanValid = false
-        loan['term']['errors'].add('IS_NAN')
+        loan['term']['errors'].push('IS_NAN')
       } else if (!Number.isInteger(termNum)) {
         loanValid = false
-        loan['term']['errors'].add("NOT_INTEGER")
+        loan['term']['errors'].push("NOT_INTEGER")
       } else if (Number.isInteger(termNum) && !Number.isSafeInteger(termNum)) {
         loanValid = false
-        loan['term']['errors'].add("OUT_OF_RANGE")
+        loan['term']['errors'].push("OUT_OF_RANGE")
       } else if (termNum < 1) {
         loanValid = false
-        loan['term']['errors'].add("LESS_THAN_1")
+        loan['term']['errors'].push("LESS_THAN_1")
       }
     }
     return loanValid
@@ -231,12 +254,17 @@ class App extends React.Component {
     this.setState({ totalPayment: val })
   }
 
+  handleBrowserStorageChange() {
+    let toggle = this.state.browserStorage
+    this.setState({ browserStorage: !toggle })
+  }
+
   render() {
     return (
-      <Container>
+      <Container fluid style={{ paddingTop: '8px' }}>
         <Row>
-          <Col></Col>
-          <Col lg={11}>
+          <Col lg={2}></Col>
+          <Col lg={8}>
             <Row>
               <Col>
                 <MonthlyPayment totalPayment={this.state.totalPayment}
@@ -257,9 +285,17 @@ class App extends React.Component {
               ></LoanList>
             </Row>
           </Col>
-          <Col></Col>
+          <Col lg={2}>
+            <Row>
+              {/* Automatically saves and loads loan data if toggled */}
+              <Form.Check type="switch" label="Autosave Loan Data" checked={this.state.browserStorage} onChange={this.handleBrowserStorageChange}></Form.Check>
+            </Row>
+          </Col>
         </Row>
+
       </Container>
+
+
     )
   }
 }
